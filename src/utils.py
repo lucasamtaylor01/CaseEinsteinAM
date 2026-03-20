@@ -8,8 +8,8 @@ def clean_data(df):
 
     df.columns = df.columns.str.upper()
     df.columns = df.columns.str.replace(" ", "_")
-    string_cols = df.select_dtypes(include=['string']).columns
-    df[string_cols] = df[string_cols].apply(lambda x: x.str.upper())
+    string_cols = df.select_dtypes(include=['object', 'string']).columns
+    df[string_cols] = df[string_cols].apply(lambda x: x.astype(str).str.strip().str.upper())
 
     df = df.drop_duplicates(subset='ORDER_ID')
 
@@ -45,7 +45,7 @@ def clean_data(df):
     }
 
     df['STATE'] = df['STATE'].map(state_map)
-    df['COUNTRY'] = df['COUNTRY'].map({'UNITED STATES': 'USA'})
+    df['COUNTRY'] = df['COUNTRY'].replace({'UNITED STATES': 'USA'})
     df['NET_SALES'] = df['SALES'] * df['QUANTITY'] * (1-df['DISCOUNT'])
 
     df = df.drop(columns=['SALES', 'QUANTITY', 'DISCOUNT'])
