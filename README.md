@@ -3,7 +3,10 @@
 # EBAC: Profissão cientista de dados
 
 ## 📝 Descrição
-Este projeto é o conjunto das atividades e aulas fornecidas no curso Profissão cientista de dados oferecido pela EBAC. Este repositório é apenas para uso pessoal e deve ser privado.
+
+
+## DataSet Utilizado
+
 
 ## ⚙️ Instalação
 

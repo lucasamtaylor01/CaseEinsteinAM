@@ -56,29 +56,70 @@ def clean_data(df):
 def feature_engineering(df):
     df['NET_SALES_LOG'] = np.log1p(df['NET_SALES'])
 
-    freq = df['STATE'].value_counts(normalize=True)
-    df['STATE_FREQ'] = df['STATE'].map(freq)
-
     return df
 
 def treat_outliers(df):
-    q_low = 0.025
-    q_high = 0.975
+    q_low = 0.15
+    q_high = 0.85
 
-    q1 = df['PROFIT'].quantile(q_low)
-    q99 = df['PROFIT'].quantile(q_high)
+    q_profit_low = df['PROFIT'].quantile(q_low)
+    q_profit_high = df['PROFIT'].quantile(q_high)
 
-    df['PROFIT_CLIPPED'] = df['PROFIT'].clip(q1, q99)
+    q_net_sales_low = df['NET_SALES_LOG'].quantile(q_low)
+    q_net_sales_high = df['NET_SALES_LOG'].quantile(q_high)
 
+    df = df[
+        (df['PROFIT'].between(q_profit_low, q_profit_high)) &
+        (df['NET_SALES_LOG'].between(q_net_sales_low, q_net_sales_high))
+    ]
+
+    df = df.reset_index(drop=True)
+    df = df.drop(columns=['NET_SALES_LOG'])
     return df
+
 
 def scale_data(df, cols):
     scaler = StandardScaler()
-    df[cols] = scaler.fit_transform(df[cols])
+    df[[col + '_SCALED' for col in cols]] = scaler.fit_transform(df[cols])
     return df, scaler
 
 def preprocess(df):
     df = clean_data(df)
     df = feature_engineering(df)
+    df = scale_data(df, ['PROFIT', 'NET_SALES'])[0]
     df = treat_outliers(df)
     return df
+
+def data_clustering(df):
+    df_clustering = df[['ORDER_DATE',
+                        'SHIP_MODE',
+                        'CUSTOMER_ID',
+                        'SEGMENT',
+                        'CATEGORY',
+                        'REGION',
+                        'NET_SALES',
+                        'PROFIT',
+                        'NET_SALES_SCALED',
+                        'PROFIT_SCALED']].copy()
+    df_clustering = df_clustering.reset_index(drop=True)
+    df_clustering = df_clustering.groupby('CUSTOMER_ID', as_index=False).agg({
+        'ORDER_DATE': 'first',
+        'SHIP_MODE': 'first',
+        'CATEGORY': 'first',
+        'REGION': 'first',
+        'SEGMENT': 'first',
+        'NET_SALES': 'sum',
+        'PROFIT': 'sum',
+        'NET_SALES_SCALED': 'sum',
+        'PROFIT_SCALED': 'sum'
+    })
+
+    X_scaled = df_clustering.drop(columns=['CUSTOMER_ID', 'NET_SALES', 'PROFIT'])
+    X_scaled['ORDER_DATE'] = pd.to_datetime(df_clustering['ORDER_DATE'], errors='coerce').dt.year
+    cols_one_hot = ['SHIP_MODE', 'SEGMENT', 'REGION', 'CATEGORY', 'ORDER_DATE']
+
+    X_scaled = pd.get_dummies(
+    X_scaled,
+    columns=cols_one_hot)
+
+    return X_scaled, df_clustering
