@@ -4,17 +4,7 @@
 
 ## 📝 Descrição
 
-
-## DataSet Utilizado
-
-
-## ⚙️ Instalação
-
-1. Clonar o repositório
-   ```bash
-   git clone https://github.com/lucasamtaylor01/EBAC.git
-   ```
-2. Instalar dependências
+1. Instalar dependências
     
    **Linux/macOS:**
    ```bash
