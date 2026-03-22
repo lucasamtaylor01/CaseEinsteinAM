@@ -1,8 +1,8 @@
 from pathlib import Path
 import pandas as pd
 
-from src.utils import preprocess, clean_data, data_clustering, data_prediction
-from src.build_model import train_kmeans, train_predict_models_by_cluster
+from src.utils import preprocess, clean_data, data_clustering
+from src.build_model import train_kmeans
 from src.predict import predict
 
 
@@ -56,14 +56,6 @@ df_clustering.to_csv(
 )
 print('Modelo de clustering treinado e resultados exportados com sucesso!')
 
-
-
-# MODELO DE PREDIÇÃO DE PROFIT POR CLUSTER (REGRESSÃO LINEAR COM REGULARIZAÇÃO)
-df_predict = data_prediction(df_clustering)
-
-trained_models = train_predict_models_by_cluster(df_predict, output_dir=OUTPUT_DIR / 'models_predict')
-
-print(f'Modelos de predição treinados por cluster: {len(trained_models)}')
 
 
 print('Pipeline finalizado com sucesso!')
