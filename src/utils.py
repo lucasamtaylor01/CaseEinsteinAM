@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-
+from statsmodels.tsa.stattools import adfuller
 
 def clean_data(df):
     # PADRONIZAÇÃO DE CONTEÚDO STRING
@@ -125,3 +125,30 @@ def data_clustering(df):
     )
 
     return X_scaled, df_clustering
+
+def dict_analise_temporal(df_clustering):
+
+    df_clustering['ORDER_DATE'] = pd.to_datetime(df_clustering['ORDER_DATE'])
+    df_temporal = df_clustering.groupby([df_clustering['ORDER_DATE'].dt.to_period('M'), 'CLUSTER'])['PROFIT'].sum().reset_index()
+    df_temporal['ORDER_DATE'] = df_temporal['ORDER_DATE'].dt.to_timestamp()
+    df_temporal = df_temporal.sort_values('ORDER_DATE').reset_index(drop=True)
+
+
+    df_temporal_cluster_0 = df_temporal[df_temporal['CLUSTER'] == 0].copy()
+    df_temporal_cluster_1 = df_temporal[df_temporal['CLUSTER'] == 1].copy()
+    df_temporal_cluster_2 = df_temporal[df_temporal['CLUSTER'] == 2].copy()
+
+    df_temporal_dict = {0: df_temporal_cluster_0, 1: df_temporal_cluster_1, 2: df_temporal_cluster_2}
+
+    for i in df_temporal_dict:
+        df_temporal_dict[i] = df_temporal_dict[i][df_temporal_dict[i]['ORDER_DATE'] >= '2020-07-01']
+
+    for i, data in df_temporal_dict.items():
+        test_stationarity(data['PROFIT'])
+
+    return df_temporal_dict
+
+def test_stationarity(timeseries, diff_order=0):
+    result = adfuller(timeseries)
+    if result[1] >= 0.05:
+        test_stationarity(timeseries.diff().dropna(), diff_order + 1)

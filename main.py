@@ -1,8 +1,8 @@
 from pathlib import Path
 import pandas as pd
 
-from src.utils import preprocess, clean_data, data_clustering
-from src.build_model import train_kmeans
+from src.utils import dict_analise_temporal, preprocess, clean_data, data_clustering
+from src.build_model import train_arima_by_cluster, train_kmeans
 from src.predict import predict
 
 
@@ -56,6 +56,11 @@ df_clustering.to_csv(
 )
 print('Modelo de clustering treinado e resultados exportados com sucesso!')
 
+# MODELO DE SÉRIES TEMPORAIS POR CLUSTER
 
+df_temporal_dict = dict_analise_temporal(df_clustering)
+arima_results = train_arima_by_cluster(df_temporal_dict, output_dir=OUTPUT_DIR / 'models_predict')
 
+print('Modelos ARIMA treinados com sucesso!')
+    
 print('Pipeline finalizado com sucesso!')
