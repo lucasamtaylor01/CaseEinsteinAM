@@ -4,7 +4,6 @@ from sklearn.preprocessing import StandardScaler
 from statsmodels.tsa.stattools import adfuller
 
 def clean_data(df):
-    # PADRONIZAÇÃO DE CONTEÚDO STRING
 
     df.columns = df.columns.str.upper()
     df.columns = df.columns.str.replace(' ', '_')
@@ -13,15 +12,12 @@ def clean_data(df):
 
     df = df.drop_duplicates(subset='ORDER_ID')
 
-    # Eliminação de colunas desnecessárias
     df = df.drop(columns=['CUSTOMER_NAME', 'POSTAL_CODE', 'ORDER_ID'])
 
-    # Padronização de dados temporais
     df['ORDER_DATE'] = pd.to_datetime(df['ORDER_DATE'])
     df['SHIP_DATE'] = pd.to_datetime(df['SHIP_DATE'])
     df = df[df['SHIP_DATE'] >= df['ORDER_DATE']]
 
-    # Padronização de dados geográficos
     state_map = {
         'ALABAMA': 'AL', 'ALASKA': 'AK', 'ARIZONA': 'AZ', 'ARKANSAS': 'AR',
         'CALIFORNIA': 'CA', 'COLORADO': 'CO', 'CONNECTICUT': 'CT',
@@ -57,7 +53,6 @@ def feature_engineering(df):
 
     return df
 
-
 def treat_outliers(df):
     q_low = 0.15
     q_high = 0.85
@@ -77,12 +72,10 @@ def treat_outliers(df):
     df = df.drop(columns=['NET_SALES_LOG'])
     return df
 
-
 def scale_data(df, cols):
     scaler = StandardScaler()
     df[[col + '_SCALED' for col in cols]] = scaler.fit_transform(df[cols])
     return df, scaler
-
 
 def preprocess(df):
     df = clean_data(df)
@@ -129,26 +122,41 @@ def data_clustering(df):
 def dict_analise_temporal(df_clustering):
 
     df_clustering['ORDER_DATE'] = pd.to_datetime(df_clustering['ORDER_DATE'])
-    df_temporal = df_clustering.groupby([df_clustering['ORDER_DATE'].dt.to_period('M'), 'CLUSTER'])['PROFIT'].sum().reset_index()
+    
+    df_temporal = df_clustering.groupby(
+        [df_clustering['ORDER_DATE'].dt.to_period('M'), 'CLUSTER']
+    )['PROFIT'].sum().reset_index()
+
     df_temporal['ORDER_DATE'] = df_temporal['ORDER_DATE'].dt.to_timestamp()
     df_temporal = df_temporal.sort_values('ORDER_DATE').reset_index(drop=True)
-
 
     df_temporal_cluster_0 = df_temporal[df_temporal['CLUSTER'] == 0].copy()
     df_temporal_cluster_1 = df_temporal[df_temporal['CLUSTER'] == 1].copy()
     df_temporal_cluster_2 = df_temporal[df_temporal['CLUSTER'] == 2].copy()
 
-    df_temporal_dict = {0: df_temporal_cluster_0, 1: df_temporal_cluster_1, 2: df_temporal_cluster_2}
+    df_temporal_dict = {
+        0: df_temporal_cluster_0,
+        1: df_temporal_cluster_1,
+        2: df_temporal_cluster_2
+    }
 
     for i in df_temporal_dict:
-        df_temporal_dict[i] = df_temporal_dict[i][df_temporal_dict[i]['ORDER_DATE'] >= '2020-07-01']
+        df_temporal_dict[i] = df_temporal_dict[i][
+            df_temporal_dict[i]['ORDER_DATE'] >= '2020-07-01'
+        ]
 
     for i, data in df_temporal_dict.items():
-        test_stationarity(data['PROFIT'])
+        stationary = test_stationarity(data['PROFIT'])
+        df_temporal_dict[i] = df_temporal_dict[i].loc[stationary.index].copy()
+        df_temporal_dict[i]['PROFIT'] = stationary
 
     return df_temporal_dict
 
+
 def test_stationarity(timeseries, diff_order=0):
     result = adfuller(timeseries)
+
     if result[1] >= 0.05:
-        test_stationarity(timeseries.diff().dropna(), diff_order + 1)
+        return test_stationarity(timeseries.diff().dropna(), diff_order + 1)
+
+    return timeseries
