@@ -1,8 +1,6 @@
 # Case_Einstein_AM
 
-## 📝 Descrição
-
-1. Instalar dependências
+## Instalar dependências
     
    **Linux/macOS:**
    ```bash
