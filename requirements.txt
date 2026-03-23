@@ -13,3 +13,4 @@ prophet
 ipywidgets
 pmdarima
 kaleido
+ipykernel
