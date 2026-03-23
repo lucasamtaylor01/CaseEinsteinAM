@@ -22,3 +22,4 @@ model/*.pkl
 .DS_Store
 Thumbs.db
 .vscode/
+report
