@@ -1,11 +1,11 @@
 from pathlib import Path
 import pandas as pd
-from src.utils import dict_analise_temporal, preprocess, clean_data, data_clustering
+from src.utils import build_temporal_dict, preprocess, clean_data, data_clustering
 from src.build_model import train_arima_by_cluster, train_kmeans
 from src.predict import predict
 
 
-# DEFINIÇÃO DE PATHS
+# PATH DEFINITIONS
 BASE_DIR = Path(__file__).resolve().parent
 
 DATA_DIR = BASE_DIR / 'data'
@@ -20,23 +20,23 @@ MODEL_DIR.mkdir(exist_ok=True)
 PROCESSED_DATA_DIR.mkdir(exist_ok=True)
 
 
-# TRATAMENTO DE DADOS INICIAL
+# INITIAL DATA PROCESSING
 df = pd.read_csv(DATA_PATH, sep=',')
-df_tratado = clean_data(df)
-df_tratado.to_csv(PROCESSED_DATA_DIR / 'SUPERSTORE_TRATADO.csv', index=False)
+df_processed = clean_data(df)
+df_processed.to_csv(PROCESSED_DATA_DIR / 'SUPERSTORE_PROCESSED.csv', index=False)
 
-print('[1/4] Dados tratados exportados com sucesso.\n')
-
-
-# TRATAMENTO DE DADOS PARA MODELAGEM
-df_modelagem = preprocess(df_tratado)
-df_modelagem.to_csv(PROCESSED_DATA_DIR / 'SUPERSTORE_MODELAGEM.csv', index=False)
-
-print('[2/4] Dados para modelagem exportados com sucesso.\n')
+print('[1/4] Processed data exported successfully.\n')
 
 
-# MODELO DE CLUSTERING (K-MEANS)
-X_clustering, df_clustering = data_clustering(df_modelagem)
+# DATA PROCESSING FOR MODELING
+df_modeling = preprocess(df_processed)
+df_modeling.to_csv(PROCESSED_DATA_DIR / 'SUPERSTORE_MODELING.csv', index=False)
+
+print('[2/4] Modeling data exported successfully.\n')
+
+
+# CLUSTERING MODEL (K-MEANS)
+X_clustering, df_clustering = data_clustering(df_modeling)
 model_clustering = train_kmeans(
     X=X_clustering,
     k=3,
@@ -49,12 +49,12 @@ df_clustering.to_csv(
     MODEL_DIR / 'SUPERSTORE_CLUSTERING.csv',
     index=False
 )
-print('[3/4] Modelo de clustering treinado e resultados exportados com sucesso.\n')
+print('[3/4] Clustering model trained and results exported successfully.\n')
 
-# MODELO DE SÉRIES TEMPORAIS POR CLUSTER
-df_temporal_dict = dict_analise_temporal(df_clustering)
+# TIME SERIES MODEL BY CLUSTER
+df_temporal_dict = build_temporal_dict(df_clustering)
 arima_results = train_arima_by_cluster(df_temporal_dict, output_dir=OUTPUT_DIR / 'models_predict')
 
-print('[4/4] Modelos ARIMA treinados com sucesso.\n')
-    
-print('[!] Pipeline finalizado com sucesso.\n')
+print('[4/4] ARIMA models trained successfully.\n')
+
+print('[!] Pipeline completed successfully.\n')

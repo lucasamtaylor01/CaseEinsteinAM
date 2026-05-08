@@ -1,10 +1,10 @@
 # SuperstoreDS
 
-## 📊 Descrição
-Projeto de análise e modelagem com o dataset Superstore, focado em EDA, clusterização e previsão de lucro.
+## 📊 Description
+Analysis and modeling project using the Superstore dataset, focused on EDA, clustering, and profit forecasting.
 
 
-## ⚙️ Instalar dependências
+## ⚙️ Install dependencies
 
    **Linux/macOS:**
    ```bash
@@ -15,21 +15,21 @@ Projeto de análise e modelagem com o dataset Superstore, focado em EDA, cluster
    python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -r requirements.txt
    ```
 
-## 📂 Estrutura
+## 📂 Structure
 
 ```plaintext
 .
 ├── 📂 data
 │   ├── 📂 data_processed
-│   │   ├── 📄 SUPERSTORE_MODELAGEM.csv
-│   │   └── 📄 SUPERSTORE_TRATADO.csv
+│   │   ├── 📄 SUPERSTORE_MODELING.csv
+│   │   └── 📄 SUPERSTORE_PROCESSED.csv
 │   └── 📂 data_raw
 │       └── 📄 SUPERSTORE.csv
 ├── 🐍 main.py
 ├── 📂 model
 │   └── 📄 SUPERSTORE_CLUSTERING.csv
 ├── 📓 notebooks
-│   ├── 📘 01_exploracao_inicial.ipynb
+│   ├── 📘 01_initial_exploration.ipynb
 │   ├── 📘 02_outliers.ipynb
 │   ├── 📘 03_kmeans.ipynb
 │   └── 📘 04_temporal_series.ipynb
@@ -51,6 +51,6 @@ Projeto de análise e modelagem com o dataset Superstore, focado em EDA, cluster
     └── 🧰 utils.py
 ```
 
-## 💾 DataSet
+## 💾 Dataset
 
-Disponível no [Github](https://raw.githubusercontent.com/WuCandice/Superstore-Sales-Analysis/refs/heads/main/dataset/Superstore%20Dataset.csv)
+Available on [Github](https://raw.githubusercontent.com/WuCandice/Superstore-Sales-Analysis/refs/heads/main/dataset/Superstore%20Dataset.csv)
